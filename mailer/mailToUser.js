@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const nodemailer = require("nodemailer");
 
-async function sendMailToUser(token, mailOptions){
+async function sendMailToUser(mailType){
     try {
         const transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.email',
@@ -13,7 +13,7 @@ async function sendMailToUser(token, mailOptions){
             }
         });
 
-        let details = await transporter.sendMailToUser(mailOptions);
+        let details = await transporter.sendMailToUser(mailType);
         console.log("Message sent: %s", details.messageId);
 
     } catch (error) {
