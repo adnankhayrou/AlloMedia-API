@@ -47,7 +47,7 @@ async function register (req, res) {
         };
         sendMailToUser(mailType);
 
-        res.json({ success: 'User registered successfully, verify your email ', newUser: userObject });
+        res.json({ success: 'Registeration successfully, Please verify your email ', newUser: userObject });
     } catch (err) {
         return res.status(400).send(err);
     }
