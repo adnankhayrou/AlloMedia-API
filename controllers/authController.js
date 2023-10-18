@@ -43,7 +43,7 @@ async function register (req, res) {
             subject: 'Account activation link',
             text: `Hello ${req.body.name},`,
             html: `<h3> Click the link to activate your account </h3>
-        <a href="http://localhost:3000/api/auth/activate/${token}">Activate your account</a>`,
+        <a href="http://localhost:3000/api/auth/verification/${token}">Activate your account</a>`,
         };
         sendMailToUser(mailType);
 
@@ -52,23 +52,41 @@ async function register (req, res) {
         return res.status(400).send(err);
     }
 
+}
 
+async function verifyEmail (req, res) {
+    const token = req.params.token;
+    if(!token) return res.status(401).json({ error: `Don't have access` });
+    const decoded_user = tokenRequest(token);
+
+    if(!decoded_user.success){
+        return res.status(401).json({ error: `Don't have access` })
+    }
+
+    const id = decoded_user.data._id;
+
+    try {
+        const updatedUser = await userModel.updateOne({ id }, { is_verified: true });
+        res.json({ success: 'Your Account activated successfully' });
+    }catch (e) {
+        console.log(e);
+        res.status(400).json({ error: 'Something is wrong' });
+    }
 
 }
 
 async function login(req, res){
-
+    
+       
 }
 
 function logout(req, res){
 
 }
 
-async function forgotPassword(req, res){
-   
-}
 
 
 module.exports = {
     register,
+    verifyEmail,
 }

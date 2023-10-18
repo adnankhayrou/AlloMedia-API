@@ -5,8 +5,6 @@ const nodemailer = require("nodemailer");
 async function sendMailToUser(mailType){
     try {
         const transporter = nodemailer.createTransport({
-            // host: 'smtp.ethereal.email',
-            // port: 587,
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
             auth: {
