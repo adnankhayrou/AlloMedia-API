@@ -4,6 +4,9 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.DATABASE_URL)

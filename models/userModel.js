@@ -26,7 +26,7 @@ const usersSchema = new mongoose.Schema({
     },
     role: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'roles',
+        ref: 'Role',
         required: true,
         validate: {
             validator: async function (v) {

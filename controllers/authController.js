@@ -1,4 +1,5 @@
 const userModel = require('../models/userModel')
+const role = require('../models/roleModel');
 const bcryptjs = require('bcryptjs');
 const sendMailToUser = require('../mailer/mailToUser');
 const { authRequest } = require('../requests/auth.request');
@@ -76,12 +77,35 @@ async function verifyEmail (req, res) {
 }
 
 async function login(req, res){
-    
+    const {error} = authRequest.LoginValidation(req.body);
+    if (error){
+        return res.status(400).json({ error: error.details[0].message });
+    } 
+
+    const user = await userModel.findOne({ email: req.body.email }).populate('role');
+    if (!user){
+        return res.status(400).json({ error: 'Email is not found' });
+    }
+
+    const validPass = await bcryptjs.compare(req.body.password, user.password);
+    if (!validPass){
+        return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    if(!user.is_verified){
+        return res.status(400).json({ error: 'Please verify your email' });
+    } 
+
+    const token = jwt.sign({ user}, process.env.ACCESS_TOKEN_SECRET);
+
+    res.cookie('authToken', token, { httpOnly: true });
+   
+    return res.redirect('/api/user/message');
        
 }
 
 function logout(req, res){
-
+  
 }
 
 
@@ -89,4 +113,6 @@ function logout(req, res){
 module.exports = {
     register,
     verifyEmail,
+    login,
+    logout,
 }
