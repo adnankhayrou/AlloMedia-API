@@ -83,6 +83,8 @@ async function login(req, res){
     } 
 
     const user = await userModel.findOne({ email: req.body.email }).populate('role');
+
+    
     if (!user){
         return res.status(400).json({ error: 'Email is not found' });
     }
@@ -105,7 +107,8 @@ async function login(req, res){
 }
 
 function logout(req, res){
-  
+    res.clearCookie('authToken');
+    res.json({ success: 'You are Logged out successfully' });
 }
 
 
