@@ -4,6 +4,7 @@ const bcryptjs = require('bcryptjs');
 const sendMailToUser = require('../mailer/mailToUser');
 const { authRequest } = require('../requests/auth.request');
 const tokenRequest = require('../requests/token.request');
+const emailAndPasswordRequest = require('../requests/emailAndPassword.request');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -84,7 +85,7 @@ async function login(req, res){
 
     const user = await userModel.findOne({ email: req.body.email }).populate('role');
 
-    
+
     if (!user){
         return res.status(400).json({ error: 'Email is not found' });
     }
@@ -111,6 +112,29 @@ function logout(req, res){
     res.json({ success: 'You are Logged out successfully' });
 }
 
+async function resetPassword(req, res){
+    const user = req.user;
+    const { error } = emailAndPasswordRequest.PasswordValidation(req.body);
+
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
+
+    try {
+        const salt = await bcryptjs.genSalt(10);
+        const hashingPassword = await bcryptjs.hash(req.body.password, salt);
+
+        const updatedUser = await UserModel.updateOne(
+            { _id: user._id },
+            { password: hashingPassword }
+        );
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({ error: 'Something went wrong' });
+    }
+
+    res.json({ success: 'Your Password reseted successfully' });
+}
 
 
 module.exports = {
@@ -118,4 +142,5 @@ module.exports = {
     verifyEmail,
     login,
     logout,
+    resetPassword,
 }
