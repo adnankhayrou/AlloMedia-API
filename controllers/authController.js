@@ -104,7 +104,7 @@ async function login(req, res){
         return res.status(400).json({ error: error.details[0].message });
     } 
 
-    const user = await userModel.findOne({ email: req.body.email }).populate('role');
+    const user = await userModel.findOne({ email: req.body.email });
 
 
     if (!user){
