@@ -10,8 +10,73 @@ require('dotenv').config();
 
 
 
-async function register (req, res) {
-    const {error} = authRequest.RegisterValidation(req.body);
+// async function register (req, res) {
+//     const {error} = authRequest.RegisterValidation(req.body);
+//     if (error) {
+//         return res.status(400).json({ error: error.details[0].message });
+//     }
+
+//     const emailExists = await userModel.findOne({ email: req.body.email });
+//     if (emailExists) {
+//         return res.status(400).json({ error: 'Email already exists' });
+//     }
+
+//     const genSalt = await bcryptjs.genSalt(10);
+//     const hashedPassword = await bcryptjs.hash(req.body.password, genSalt);
+
+//     const newUser = new userModel({
+//         name: req.body.name,
+//         email: req.body.email,
+//         password: hashedPassword,
+//         role: req.body.role,
+//     });
+//     try {
+//         const saveUser = await newUser.save();
+//         let userData = { ...saveUser._doc };
+//         delete userData.password;
+
+//         const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
+//         let mailType = {
+//             from: 'Allo.Media@livraison.com',
+//             to: req.body.email,
+//             subject: 'Account activation link',
+//             html: `<div class="con">
+//             <h2>Hello ${req.body.name}</h2>
+//             <h3> Click the link to activate your account </h3>
+//             <a class="btn" href="http://localhost:3000/api/auth/verification/${token}">Active Your Account</a>
+//             </div>
+//                 <style>
+//                     .con{
+//                         display: flex;
+//                         align-items: center;
+//                         flex-direction: column;
+//                         justify-content: center;
+//                         height: 100vh;
+//                     }
+//                     .btn{
+//                         background-color: #4CAF50;
+//                         font-size: 16px;
+//                         font-weight: bold;
+//                         border-radius: 30px;
+//                         border-width: 0;
+//                         margin-top: 15px;
+//                         padding: 10px 32px;
+//                         color: white;
+//                         text-decoration: none; 
+//                     }
+//                 </style>`,
+//             };
+//         sendMailToUser(mailType);
+
+//         res.json({ success: 'Registeration Successfully, Please Verify Your Email ', newUser: userData });
+//     } catch (err) {
+//         return res.status(400).send(err);
+//     }
+
+// }
+
+async function register(req, res) {
+    const { error } = authRequest.RegisterValidation(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
@@ -21,8 +86,8 @@ async function register (req, res) {
         return res.status(400).json({ error: 'Email already exists' });
     }
 
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(req.body.password, salt);
+    const genSalt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(req.body.password, genSalt);
 
     const newUser = new userModel({
         name: req.body.name,
@@ -35,7 +100,7 @@ async function register (req, res) {
         let userData = { ...saveUser._doc };
         delete userData.password;
 
-        const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
+        const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' });
         let mailType = {
             from: 'Allo.Media@livraison.com',
             to: req.body.email,
@@ -68,12 +133,15 @@ async function register (req, res) {
             };
         sendMailToUser(mailType);
 
-        res.json({ success: 'Registeration Successfully, Please Verify Your Email ', newUser: userData });
+        res.status(200).json({
+            success: 'Registration Successfully, Please Verify Your Email',
+            newUser: userData,
+        });
     } catch (err) {
         return res.status(400).send(err);
     }
-
 }
+
 
 async function verifyEmail (req, res) {
     const token = req.params.token;
@@ -195,8 +263,8 @@ async function resetPassword(req, res){
     }
 
     try {
-        const salt = await bcryptjs.genSalt(10);
-        const hashingPassword = await bcryptjs.hash(req.body.password, salt);
+        const genSalt = await bcryptjs.genSalt(10);
+        const hashingPassword = await bcryptjs.hash(req.body.password, genSalt);
 
         await userModel.updateOne(
             { _id: user._id },
