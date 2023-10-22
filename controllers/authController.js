@@ -104,7 +104,7 @@ async function login(req, res){
         return res.status(400).json({ error: error.details[0].message });
     } 
 
-    const user = await userModel.findOne({ email: req.body.email });
+    const user = await userModel.findOne({ email: req.body.email }).populate('role');
 
 
     if (!user){
@@ -187,8 +187,7 @@ async function forgotPassword(req, res){
     }
 }
 
-async function resetPassword(req, res){
-    
+async function resetPassword(req, res) {
     const user = req.user;
     const { error } = emailAndPasswordRequest.PasswordValidation(req.body);
 
@@ -200,17 +199,22 @@ async function resetPassword(req, res){
         const genSalt = await bcryptjs.genSalt(10);
         const hashingPassword = await bcryptjs.hash(req.body.password, genSalt);
 
-        await userModel.updateOne(
+        const result = await userModel.updateOne(
             { _id: user._id },
             { password: hashingPassword }
         );
-    } catch (e) {
-        console.log(e);
-        return res.status(400).json({ error: 'Something went wrong' });
-    }
 
-    res.status(200).json({ success: 'Your Password reseted successfully' });
+        if (result.nModified === 1) {
+            res.status(200).json({ success: 'Your Password reseted successfully' });
+        } else {
+            console.log('Password update failed. No document modified.');
+            res.status(400).json({ error: 'Password update failed' });
+        }
+    } catch (error) {
+        return res.status(400).json({ error: "Something Went Wrong" });
+    }
 }
+
 
 
 module.exports = {
