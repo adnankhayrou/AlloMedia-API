@@ -10,73 +10,8 @@ require('dotenv').config();
 
 
 
-// async function register (req, res) {
-//     const {error} = authRequest.RegisterValidation(req.body);
-//     if (error) {
-//         return res.status(400).json({ error: error.details[0].message });
-//     }
-
-//     const emailExists = await userModel.findOne({ email: req.body.email });
-//     if (emailExists) {
-//         return res.status(400).json({ error: 'Email already exists' });
-//     }
-
-//     const genSalt = await bcryptjs.genSalt(10);
-//     const hashedPassword = await bcryptjs.hash(req.body.password, genSalt);
-
-//     const newUser = new userModel({
-//         name: req.body.name,
-//         email: req.body.email,
-//         password: hashedPassword,
-//         role: req.body.role,
-//     });
-//     try {
-//         const saveUser = await newUser.save();
-//         let userData = { ...saveUser._doc };
-//         delete userData.password;
-
-//         const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
-//         let mailType = {
-//             from: 'Allo.Media@livraison.com',
-//             to: req.body.email,
-//             subject: 'Account activation link',
-//             html: `<div class="con">
-//             <h2>Hello ${req.body.name}</h2>
-//             <h3> Click the link to activate your account </h3>
-//             <a class="btn" href="http://localhost:3000/api/auth/verification/${token}">Active Your Account</a>
-//             </div>
-//                 <style>
-//                     .con{
-//                         display: flex;
-//                         align-items: center;
-//                         flex-direction: column;
-//                         justify-content: center;
-//                         height: 100vh;
-//                     }
-//                     .btn{
-//                         background-color: #4CAF50;
-//                         font-size: 16px;
-//                         font-weight: bold;
-//                         border-radius: 30px;
-//                         border-width: 0;
-//                         margin-top: 15px;
-//                         padding: 10px 32px;
-//                         color: white;
-//                         text-decoration: none; 
-//                     }
-//                 </style>`,
-//             };
-//         sendMailToUser(mailType);
-
-//         res.json({ success: 'Registeration Successfully, Please Verify Your Email ', newUser: userData });
-//     } catch (err) {
-//         return res.status(400).send(err);
-//     }
-
-// }
-
-async function register(req, res) {
-    const { error } = authRequest.RegisterValidation(req.body);
+async function register (req, res) {
+    const {error} = authRequest.RegisterValidation(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
@@ -100,7 +35,7 @@ async function register(req, res) {
         let userData = { ...saveUser._doc };
         delete userData.password;
 
-        const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' });
+        const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
         let mailType = {
             from: 'Allo.Media@livraison.com',
             to: req.body.email,
@@ -133,13 +68,11 @@ async function register(req, res) {
             };
         sendMailToUser(mailType);
 
-        res.status(200).json({
-            success: 'Registration Successfully, Please Verify Your Email',
-            newUser: userData,
-        });
+        res.status(200).json({ success: 'Registration Successfully, Please Verify Your Email', newUser: userData });
     } catch (err) {
         return res.status(400).send(err);
     }
+
 }
 
 
@@ -152,17 +85,18 @@ async function verifyEmail (req, res) {
         return res.status(401).json({ error: `Don't have access` })
     }
 
-    const id = decoded_user.data._id;
+    const _id = decoded_user.data._id;
 
     try {
-            await userModel.updateOne({ id }, { is_verified: true });
-        res.json({ success: 'Your Account activated successfully' });
+        await userModel.updateOne({ _id }, { is_verified: true });
+        res.status(200).json({ success: 'Your Account activated successfully' });
     }catch (e) {
         console.log(e);
         res.status(400).json({ error: 'Something is wrong' });
     }
 
 }
+
 
 async function login(req, res){
     const {error} = authRequest.LoginValidation(req.body);
@@ -196,7 +130,7 @@ async function login(req, res){
 
 function logout(req, res){
     res.clearCookie('authToken');
-    res.json({ success: 'You are Logged out successfully' });
+    res.status(200).json({ success: 'You are Logged out successfully' });
 }
 
 async function forgotPassword(req, res){
@@ -246,7 +180,7 @@ async function forgotPassword(req, res){
         };
         sendMailToUser(mailType);
 
-        res.json({ success: 'Please Check Your Email to Reset Your Password ' });
+        res.status(200).json({ success: 'Please Check Your Email to Reset Your Password ' });
     }catch (e){
         console.log(e);
         res.status(400).json({ error: 'Something went wrong' });
@@ -275,7 +209,7 @@ async function resetPassword(req, res){
         return res.status(400).json({ error: 'Something went wrong' });
     }
 
-    res.json({ success: 'Your Password reseted successfully' });
+    res.status(200).json({ success: 'Your Password reseted successfully' });
 }
 
 
