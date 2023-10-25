@@ -8,6 +8,12 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 
+const cors = require('cors');
+app.use(cors());
+/* your regular routes go here */
+// Access-Control-Allow-Origin: ;
+
+
 // Connect to MongoDB
 mongoose.connect(process.env.DATABASE_URL)
 const db = mongoose.connection;

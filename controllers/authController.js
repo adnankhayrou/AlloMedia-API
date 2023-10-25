@@ -18,7 +18,7 @@ async function register (req, res) {
 
     const emailExists = await userModel.findOne({ email: req.body.email });
     if (emailExists) {
-        return res.status(400).json({ error: 'Email already exists' });
+        return res.status(400).json({ error: 'This Email is already exists Try To Sign in' });
     }
 
     const genSalt = await bcryptjs.genSalt(10);
