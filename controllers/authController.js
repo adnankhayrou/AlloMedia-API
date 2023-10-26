@@ -124,7 +124,8 @@ async function login(req, res){
 
     res.cookie('authToken', token, { httpOnly: true });
    
-    return res.redirect('/api/user/message');
+    // return res.redirect('/api/user/message');
+    res.json({ success: "Login Successfull", user})
        
 }
 
@@ -180,7 +181,7 @@ async function forgotPassword(req, res){
         };
         sendMailToUser(mailType);
 
-        res.status(200).json({ success: 'Please Check Your Email to Reset Your Password ' });
+        res.status(200).json({ success: 'Please Check Email to Reset Your Password ' });
     }catch (e){
         console.log(e);
         res.status(400).json({ error: 'Something went wrong' });
