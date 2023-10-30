@@ -129,7 +129,7 @@ describe('register', () => {
         await register(req, res);
       
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Email already exists' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'This Email is already exists Try To Sign in' });
       });
       
   });

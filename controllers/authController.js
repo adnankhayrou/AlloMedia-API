@@ -36,6 +36,8 @@ async function register (req, res) {
         delete userData.password;
 
         const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
+        const tokenWithHyphens = token.replace(/\./g, '~');
+
         let mailType = {
             from: 'Allo.Media@livraison.com',
             to: req.body.email,
@@ -43,7 +45,7 @@ async function register (req, res) {
             html: `<div class="con">
             <h2>Hello ${req.body.name}</h2>
             <h3> Click the link to activate your account </h3>
-            <a class="btn" href="http://localhost:3000/api/auth/verification/${token}">Active Your Account</a>
+            <a class="btn" href="http://localhost:5173/verifyEmail/${tokenWithHyphens}">Active Your Account</a>
             </div>
                 <style>
                     .con{
@@ -125,8 +127,7 @@ async function login(req, res){
     res.cookie('authToken', token, { httpOnly: true });
    
     // return res.redirect('/api/user/message');
-    res.json({ success: "Login Successfull", user})
-       
+    res.json({ success: "Login Successfull", user, token})
 }
 
 function logout(req, res){
@@ -136,7 +137,7 @@ function logout(req, res){
 
 async function forgotPassword(req, res){
     const {error} = emailAndPasswordRequest.EmailValidation(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
+    if (error) return res.status(400).json({ error: 'email must be a valid email' });
 
     const user = await userModel.findOne({ email: req.body.email }).populate('role');
     if (!user) return res.status(400).json({ error: 'This Email is not found' });
@@ -150,13 +151,15 @@ async function forgotPassword(req, res){
         }
 
         const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
+        // console.log(token)
+        const tokenWithHyphens = token.replace(/\./g, '-');
         let mailType = {
             from: 'Allo.Media@livraison.com',
             to: req.body.email,
             subject: 'Reset your password',
             html: `<div class="con">
             <h3> Click the link to reset your password </h3>
-            <a class="btn" href="http://localhost:3000/api/auth/resetpassword/${token}">Reset Your Password</a>
+            <a class="btn" href="http://localhost:5173/resetPassword/${tokenWithHyphens}">Reset Your Password</a>
             </div>
                 <style>
                     .con{
@@ -189,6 +192,9 @@ async function forgotPassword(req, res){
 }
 
 async function resetPassword(req, res) {
+    // console.log(req.body);
+    // console.log('password lifel body = '+req.body.password);
+    // console.log('user id = '+req.user._id);
     const user = req.user;
     const { error } = emailAndPasswordRequest.PasswordValidation(req.body);
 
@@ -199,18 +205,15 @@ async function resetPassword(req, res) {
     try {
         const genSalt = await bcryptjs.genSalt(10);
         const hashingPassword = await bcryptjs.hash(req.body.password, genSalt);
-
+        // console.log('id =  '+ user._id);
+        // console.log('hash = '+ hashingPassword);
         const result = await userModel.updateOne(
             { _id: user._id },
             { password: hashingPassword }
         );
 
-        if (result.nModified === 1) {
-            res.status(200).json({ success: 'Your Password reseted successfully' });
-        } else {
-            console.log('Password update failed. No document modified.');
-            res.status(400).json({ error: 'Password update failed' });
-        }
+        res.status(200).json({ success: 'Your Password reseted successfully' });
+      
     } catch (error) {
         return res.status(400).json({ error: "Something Went Wrong" });
     }
