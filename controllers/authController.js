@@ -152,7 +152,7 @@ async function forgotPassword(req, res){
 
         const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m'});
         // console.log(token)
-        const tokenWithHyphens = token.replace(/\./g, '-');
+        const tokenWithHyphens = token.replace(/\./g, '~');
         let mailType = {
             from: 'Allo.Media@livraison.com',
             to: req.body.email,
@@ -218,8 +218,6 @@ async function resetPassword(req, res) {
         return res.status(400).json({ error: "Something Went Wrong" });
     }
 }
-
-
 
 module.exports = {
     register,
