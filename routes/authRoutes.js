@@ -4,6 +4,18 @@ const authController = require('../controllers/authController');
 const tokenMeddleware = require('../middlewares/token.meddleware');
 const isLogged = require('../middlewares/isLogged.meddleware');
 
+
+
+router.post('/register',isLogged, authController.register);
+router.get('/verification/:token', authController.verifyEmail);
+router.post('/login',isLogged, authController.login);
+router.get('/logout', authController.logout);
+router.post('/forgotpassword',authController.forgotPassword);
+router.post('/resetpassword/:token',tokenMeddleware, authController.resetPassword);
+
+
+
+// register end point swagger
 /**
  * @swagger
  * /api/auth/register:
@@ -63,10 +75,9 @@ const isLogged = require('../middlewares/isLogged.meddleware');
  *         description: Unauthorized
  */
 
-router.post('/register',isLogged, authController.register);
 
 
-
+// verification end point swagger
 /**
  * @swagger
  * /api/auth/verification/{token}:
@@ -102,8 +113,9 @@ router.post('/register',isLogged, authController.register);
  *                 error:
  *                   type: string
  */
-router.get('/verification/:token', authController.verifyEmail);
 
+
+// login end point swagger
 /**
  * @swagger
  * /api/auth/login:
@@ -152,8 +164,9 @@ router.get('/verification/:token', authController.verifyEmail);
  *                   type: string
  */
 
-router.post('/login',isLogged, authController.login);
 
+
+// logout end point swagger
 /**
  * @swagger
  * /api/auth/logout:
@@ -173,8 +186,9 @@ router.post('/login',isLogged, authController.login);
  *                   type: string
  */
 
-router.get('/logout', authController.logout);
 
+
+// forgot password end point swagger
 /**
  * @swagger
  * /api/auth/forgotpassword:
@@ -215,8 +229,9 @@ router.get('/logout', authController.logout);
  *                   type: string
  */
 
-router.post('/forgotpassword',authController.forgotPassword);
 
+
+// reset password end point swagger
 /**
  * @swagger
  * /api/auth/resetpassword/{token}:
@@ -264,7 +279,6 @@ router.post('/forgotpassword',authController.forgotPassword);
  *                   type: string
  */
 
-router.post('/resetpassword/:token',tokenMeddleware, authController.resetPassword);
 
 
 module.exports = router;
